@@ -1,4 +1,5 @@
 import { getPgPool } from '../index.js';
+import pg from 'pg';
 
 export interface TransitiveDependencyNode {
   package_version_id: string;
@@ -19,8 +20,11 @@ export interface DependencyPathResult {
  * Executes a PostgreSQL Recursive CTE to find all transitive dependencies starting from a root package version.
  * Includes cycle protection via array containment check.
  */
-export async function getTransitiveClosureRuntime(rootVersionId: string): Promise<TransitiveDependencyNode[]> {
-  const pool = getPgPool();
+export async function getTransitiveClosureRuntime(
+  rootVersionId: string,
+  clientRunner?: pg.Pool | pg.PoolClient
+): Promise<TransitiveDependencyNode[]> {
+  const runner = clientRunner || getPgPool();
   const query = `
     WITH RECURSIVE dependency_tree AS (
       -- Anchor member: direct dependencies of the root version
@@ -68,7 +72,7 @@ export async function getTransitiveClosureRuntime(rootVersionId: string): Promis
     ORDER BY package_version_id, depth ASC;
   `;
 
-  const result = await pool.query(query, [rootVersionId]);
+  const result = await runner.query(query, [rootVersionId]);
   return result.rows;
 }
 
@@ -78,9 +82,10 @@ export async function getTransitiveClosureRuntime(rootVersionId: string): Promis
 export async function getDependencyPathsForScan(
   projectName: string,
   scanId: string,
-  targetPackageName: string
+  targetPackageName: string,
+  clientRunner?: pg.Pool | pg.PoolClient
 ): Promise<string[][]> {
-  const pool = getPgPool();
+  const runner = clientRunner || getPgPool();
   const query = `
     WITH RECURSIVE scan_paths AS (
       -- Anchor: Direct dependencies in the scan
@@ -116,11 +121,11 @@ export async function getDependencyPathsForScan(
     WHERE current_package_name = $3;
   `;
 
-  const result = await pool.query(query, [projectName, scanId, targetPackageName]);
+  const result = await runner.query(query, [projectName, scanId, targetPackageName]);
 
   if (result.rows.length === 0) {
     // If targetPackage is itself a direct dependency
-    const directCheck = await pool.query(`
+    const directCheck = await runner.query(`
       SELECT p.name
       FROM scan_dependencies sd
       JOIN package_versions pv ON pv.id = sd.package_version_id
@@ -139,9 +144,12 @@ export async function getDependencyPathsForScan(
 /**
  * Populates or rebuilds the materialized closures table for a root version (Experiment B).
  */
-export async function populateMaterializedClosure(rootVersionId: string): Promise<number> {
-  const pool = getPgPool();
-  await pool.query('DELETE FROM materialized_closures WHERE root_version_id = $1', [rootVersionId]);
+export async function populateMaterializedClosure(
+  rootVersionId: string,
+  clientRunner?: pg.Pool | pg.PoolClient
+): Promise<number> {
+  const runner = clientRunner || getPgPool();
+  await runner.query('DELETE FROM materialized_closures WHERE root_version_id = $1', [rootVersionId]);
 
   const insertQuery = `
     WITH RECURSIVE dependency_tree AS (
@@ -179,6 +187,6 @@ export async function populateMaterializedClosure(rootVersionId: string): Promis
     FROM dependency_tree;
   `;
 
-  const result = await pool.query(insertQuery, [rootVersionId]);
+  const result = await runner.query(insertQuery, [rootVersionId]);
   return result.rowCount || 0;
 }

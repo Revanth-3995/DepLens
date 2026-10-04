@@ -1,25 +1,25 @@
 {
-  "timestamp": "2026-10-03T19:14:16.461Z",
+  "timestamp": "2026-10-04T02:51:05.239Z",
   "experiments": {
     "closureComparison": {
-      "runtimeCteMs": 1.746,
-      "materializedClosureMs": 0.736,
-      "speedupFactor": 2.37
+      "runtimeCteMs": 1.825,
+      "materializedClosureMs": 0.704,
+      "speedupFactor": 2.59
     },
     "indexingComparison": {
-      "withIndexMs": 0.488,
-      "withoutIndexMs": 2.203,
-      "improvementPercent": 77.9
+      "withIndexMs": 0.486,
+      "withoutIndexMs": 1.893,
+      "improvementPercent": 74.3
     },
     "advisoryStorageComparison": {
-      "postgresJsonbMs": 0.406,
-      "mongoDbMs": 1.84,
+      "postgresJsonbMs": 0.396,
+      "mongoDbMs": 2.079,
       "fastest": "PostgreSQL JSONB"
     },
     "cachingComparison": {
-      "uncachedMs": 2.032,
-      "cachedMs": 0.022,
-      "speedupFactor": 90.77
+      "uncachedMs": 2.214,
+      "cachedMs": 0.023,
+      "speedupFactor": 96.7
     }
   }
 }
