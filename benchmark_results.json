@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-10-03T19:14:16.461Z",
+  "experiments": {
+    "closureComparison": {
+      "runtimeCteMs": 1.746,
+      "materializedClosureMs": 0.736,
+      "speedupFactor": 2.37
+    },
+    "indexingComparison": {
+      "withIndexMs": 0.488,
+      "withoutIndexMs": 2.203,
+      "improvementPercent": 77.9
+    },
+    "advisoryStorageComparison": {
+      "postgresJsonbMs": 0.406,
+      "mongoDbMs": 1.84,
+      "fastest": "PostgreSQL JSONB"
+    },
+    "cachingComparison": {
+      "uncachedMs": 2.032,
+      "cachedMs": 0.022,
+      "speedupFactor": 90.77
+    }
+  }
+}

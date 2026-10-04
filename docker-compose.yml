@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: deplens-postgres
+    environment:
+      POSTGRES_USER: deplens_user
+      POSTGRES_PASSWORD: deplens_password
+      POSTGRES_DB: deplens
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U deplens_user -d deplens"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: deplens-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: deplens_user
+      MONGO_INITDB_ROOT_PASSWORD: deplens_password
+      MONGO_INITDB_DATABASE: deplens
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+  mongodata:

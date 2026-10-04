@@ -1,0 +1,21 @@
+{
+  "name": "deplens",
+  "version": "1.0.0",
+  "description": "DepLens — Dependency Vulnerability Impact & What-If Analysis System",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "build:server": "npm --prefix server run build",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:server && npm run build:client",
+    "migrate": "npm --prefix server run migrate",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server run test",
+    "benchmark": "npm --prefix server run benchmark"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
